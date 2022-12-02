@@ -9,7 +9,7 @@ HEADERS = {
     'User-Agent': f'shell:{APP_ID}:{VERSION} (by /u/{REDDIT_AUTHOR})',
     'Content-Type': 'application/json'
 }
-TITLE_RGX = r'(^\[.*?\])'
+TITLE_RGX = re.compile(r'(^\[.+?\])')
 FREE_RGX = re.compile(r'\bfree\b', re.I)
 PROMO_RGX = re.compile(r'(promo code )(.+?)\b', re.I)
 URLS = [
@@ -48,8 +48,11 @@ def print_deals(deals: list[str], title: str):
     printlnc(title, FG.Blue, BG.Black)
     print()
 
-    for deal in deals:
+    for deal in sort_by_store(deals):
         print(style_row(deal))
+
+def sort_by_store(deals) -> list[str]:
+    return sorted(deals, key=lambda x: TITLE_RGX.search(x)[0])
 
 def main():
     if args.version:
