@@ -3,6 +3,7 @@ from config import AUTHOR, VERSION, APP_ID, REDDIT_AUTHOR
 import requests
 from argparse import ArgumentParser
 import re
+from json import loads as load_json
 
 HEADERS = {
     'User-Agent': f'shell:{APP_ID}:{VERSION} (by /u/{REDDIT_AUTHOR})',
@@ -72,6 +73,10 @@ def main():
     for url in urls:
         try:
             response = requests.get(url + '.json?limit=100', headers=HEADERS).json()
+
+            # with open('./src/dummy.json', 'r', encoding='utf-8') as f:
+            #     response = load_json(f.read())
+
             print_ok(f'Fetched {url}')
 
             if response['kind'] and response['kind'] == 'Listing':
