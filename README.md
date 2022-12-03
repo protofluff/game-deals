@@ -4,20 +4,20 @@ Script for fetching game deals from r/GameDeals
 
 ## Usage
 
-You can run py `src/main.py` with the `--help` flag to see an help screen, by default this will fetch the deals from www.reddit.com/r/GameDeals and print all available deals (free games, promo codes and discounts).
+You can run `py src/main.py` with the `--help` flag to see an help screen, by default this will fetch the deals from www.reddit.com/r/GameDeals and print all available deals (free games, promo codes and discounts).
 
-## Building 
+## Building with pyinstaller
 
-Install the required libraries
+Install pyinstaller
 
 ```
 pip install pyinstaller
 ```
 
-Create an executable file
+Create a bundled app
 
 ```
-pyinstaller --onefile src/main.py
+./install.sh
 ```
 
 You can find the output file inside the `dist` folder.
@@ -32,7 +32,7 @@ You can find the output file inside the `dist` folder.
 4. Create a .bat file 
 
 ```bash
-gamedeals # Arguments
+gamedeals # ... Optional arguments
 pause
 ```
 
