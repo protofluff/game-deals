@@ -24,6 +24,7 @@ args.add_argument('-p', '--promo', action='store_true', help='Show deals with pr
 args.add_argument('-o', '--others', action='store_true', help='Show other deals', required=False)
 args.add_argument('-u', '--urls', help='Url list, default to urls.txt', type=str, required=False)
 args.add_argument('-v', '--version', action='store_true', help='Prints the current version', required=False)
+args.add_argument('-d', '--debug', action='store_true', help='Runs the program in debug mode (this is meant for testing only)', required=False)
 # args.add_argument('-l', '--log', action='store_true', help='Save the output to a text file', required=False)
 # args.add_argument('-L', '--log-all', action='store_true', help='Save the output to a text file, all items included', required=False)
 args = args.parse_args()
@@ -75,10 +76,11 @@ def main():
 
     for url in urls:
         try:
-            response = requests.get(url + '.json?limit=100', headers=HEADERS).json()
-
-            # with open('./src/dummy.json', 'r', encoding='utf-8') as f:
-            #     response = load_json(f.read())
+            if args.debug:
+                with open('./src/dummy.json', 'r', encoding='utf-8') as f:
+                    response = load_json(f.read())
+            else:
+                response = requests.get(url + '.json?limit=100', headers=HEADERS).json()
 
             print_ok(f'Fetched {url}')
 
