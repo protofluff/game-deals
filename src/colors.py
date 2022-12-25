@@ -1,3 +1,5 @@
+from typing import Union
+
 ENDC = '\033[0m'    
 
 class FG:
@@ -36,14 +38,48 @@ class BG:
     BrightCyan    = '\033[06m'	
     BrightWhite       = '\033[07m'	
 
-def printc(text: str, c1: str = BG.Black, c2: str = FG.White):
-    print(c1 + c2 + text + ENDC, end='')
+def coloreds(*strings: Union[tuple[str, str, str], tuple[str, str], tuple[str]]):
+    s = ''
 
-def printlnc(text: str, c1: str = BG.Black, c2: str = FG.White):
-    print(c1 + c2 + text + ENDC)
+    for string in strings:
+        if len(string) == 3:
+            s += colored(string[0], string[1], string[2])
+        elif len(string) == 2:
+            s += colored(string[0], string[1])
+        else:
+            s += colored(string[0])
+    
+    return s
+
+def colored(text: str, fg: str = FG.White, bg: str = BG.Black):
+    return fg + bg + text + ENDC
+
+def printc(text: str, fg: str = FG.White, bg: str = BG.Black):
+    print(colored(text, fg, bg), end='')
+
+def printlnc(text: str, fg: str = FG.White, bg: str = BG.Black):
+    print(colored(text, fg, bg))
 
 def print_error(text: str):
     printlnc(text, BG.Red, FG.White)
 
 def print_ok(text: str):
     printlnc(text, BG.Blue, FG.White)
+
+if __name__ == '__main__':
+    s1 = colored('This is a test', FG.Red, BG.Yellow)
+
+    print(s1)
+    printc('He', FG.Black, BG.White)
+    printc('ll', FG.White, BG.Blue)
+    printc('o!', FG.Red, BG.Green)
+    print()
+    printlnc('Hello world!', FG.Green, BG.Black)
+    print(colored('Hello', FG.Red, BG.Yellow) + colored(' world!', FG.Yellow, BG.Red))
+    print(coloreds(
+        ('He', FG.Cyan),
+        ('ll', FG.BrightMagenta),
+        ('o w', FG.White),
+        ('or', FG.BrightMagenta),
+        ('ld!', FG.Cyan)
+    ))
