@@ -1,9 +1,11 @@
-from colors import BG, FG, ENDC, printlnc, print_error, print_ok
+from datetime import datetime
+from colors import BG, FG, ENDC, coloreds, printlnc, print_error, print_ok, colored
 from config import AUTHOR, VERSION, APP_ID, REDDIT_AUTHOR
 import requests
 from argparse import ArgumentParser
 import re
 from json import loads as load_json
+from deal import Deal
 
 HEADERS = {
     'User-Agent': f'shell:{APP_ID}:{VERSION} (by /u/{REDDIT_AUTHOR})',
@@ -37,23 +39,32 @@ def sub(source: str, replacements: dict[re.Pattern, str]):
 
     return result
 
-def style_row(deal: str):
-    return sub(deal, {
-        TITLE_RGX: f'{FG.Green}\\1{ENDC}',
-        FREE_RGX: f'{BG.Red}{FG.White}FREE{ENDC}',
-        PROMO_RGX: f'{FG.Magenta}\\1{ENDC}{BG.Magenta}{FG.White}\\2{ENDC}'
+def style_row(deal: Deal):
+    date = datetime.fromtimestamp(deal.time).strftime('%d/%m/%Y')
+    text = sub(deal.title, {
+        TITLE_RGX: coloreds(
+            ('\\1', FG.Green, BG.Black),
+            (f' ({date})', FG.Yellow)
+        ),
+        FREE_RGX: colored('FREE', BG.Red, FG.White),
+        PROMO_RGX: coloreds(
+            ('\\1', FG.Magenta),
+            ('\\2', BG.Magenta, FG.White)
+        )
     })
 
-def print_deals(deals: list[str], title: str):
+    return text
+
+def print_deals(deals: list[Deal], title: str):
     print()
-    printlnc(title, FG.Blue, BG.Black)
+    printlnc(title, FG.Blue)
     print()
 
     for deal in sort_by_store(deals):
         print(style_row(deal))
 
-def sort_by_store(deals) -> list[str]:
-    return sorted(deals, key=lambda x: TITLE_RGX.search(x)[0])
+def sort_by_store(deals: list[Deal]) -> list[Deal]:
+    return sorted(deals, key=lambda x: (TITLE_RGX.search(x.title)[0], -x.time))
 
 def main():
     if args.version:
@@ -65,13 +76,13 @@ def main():
     else:
         urls = URLS
 
-    rows = []
+    deals = []
 
     if not urls:
         print_error('urls.txt is empty')
         exit(1)
 
-    printlnc(f' --- GameDeals v{VERSION} by {AUTHOR} --- ', BG.Magenta, FG.White)
+    printlnc(f' --- GameDeals v{VERSION} by {AUTHOR} --- ', FG.White, BG.Magenta)
     print()
 
     for url in urls:
@@ -90,7 +101,10 @@ def main():
                         if post['data'] and post['kind'] and post['kind'] == 't3':
                             data = post['data']
                             title = data['title']
-                            rows.append(title)
+                            time = data['created']
+                            source = data['url']
+                            deal = Deal(title, time, source)
+                            deals.append(deal)
                 else:
                     print_error('Post list is empty')
             else:
@@ -98,10 +112,10 @@ def main():
         except Exception:
             print_error(f'Cannot fetch {url}')
 
-    rows = set(rows)
-    free_deals = list(filter(lambda x: re.search(FREE_RGX, x), rows))
-    promo_codes = list(filter(lambda x: re.search(PROMO_RGX, x), rows))
-    deals = rows - set(free_deals) - set(promo_codes)
+    deals = set(deals)
+    free_deals = list(filter(lambda x: re.search(FREE_RGX, x.title), deals))
+    promo_codes = list(filter(lambda x: re.search(PROMO_RGX, x.title), deals))
+    deals = deals - set(free_deals) - set(promo_codes)
     show_all = not args.free and not args.promo and not args.others
 
     if free_deals and (show_all or args.free):
