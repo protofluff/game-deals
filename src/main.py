@@ -6,6 +6,7 @@ from argparse import ArgumentParser
 import re
 from json import loads as load_json
 from deal import Deal
+import sys
 
 HEADERS = {
     'User-Agent': f'shell:{APP_ID}:{VERSION} (by /u/{REDDIT_AUTHOR})',
@@ -69,7 +70,7 @@ def sort_by_store(deals: list[Deal]) -> list[Deal]:
 def main():
     if args.version:
         print(VERSION)
-        exit(0)
+        sys.exit(0)
 
     if args.urls:
         urls = open(args.urls, 'r').read().splitlines()
@@ -80,7 +81,7 @@ def main():
 
     if not urls:
         print_error('urls.txt is empty')
-        exit(1)
+        sys.exit(1)
 
     printlnc(f' --- GameDeals v{VERSION} by {AUTHOR} --- ', FG.White, BG.Magenta)
     print()
