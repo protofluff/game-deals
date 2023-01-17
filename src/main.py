@@ -61,11 +61,11 @@ def print_deals(deals: list[Deal], title: str):
     printlnc(title, FG.Blue)
     print()
 
-    for deal in sort_by_store(deals):
+    for deal in sort_deals(deals):
         print(style_row(deal))
 
-def sort_by_store(deals: list[Deal]) -> list[Deal]:
-    return sorted(deals, key=lambda x: (TITLE_RGX.search(x.title)[0], -x.time))
+def sort_deals(deals: list[Deal]) -> list[Deal]:
+    return sorted(deals, key=lambda x: -x.time)
 
 def main():
     if args.version:
