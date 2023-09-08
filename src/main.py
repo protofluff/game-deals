@@ -26,6 +26,7 @@ args = ArgumentParser()
 args.add_argument('-f', '--free', action='store_true', help='Show free deals', required=False)
 args.add_argument('-p', '--promo', action='store_true', help='Show deals with promo codes', required=False)
 args.add_argument('-o', '--others', action='store_true', help='Show other deals', required=False)
+args.add_argument('-U', '--no-default-urls', help='Remove the default URLs', action='store_true', required=False)
 args.add_argument('-u', '--urls', help='Additional urls, can be shortened to r/<subreddit>/<new|top|hot>', type=str, required=False, nargs='+')
 args.add_argument('-v', '--version', action='store_true', help='Prints the current version', required=False)
 args.add_argument('-d', '--debug', action='store_true', help='Runs the program in debug mode (this is meant for testing only)', required=False)
@@ -74,9 +75,7 @@ def main():
         print(VERSION)
         sys.exit(0)
 
-    if args.urls:
-        urls = open(args.urls, 'r').read().splitlines()
-    else:
+    if not args.no_default_urls:
         urls = URLS
 
     if args.urls:
