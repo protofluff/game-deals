@@ -14,18 +14,19 @@ HEADERS = {
 }
 TITLE_RGX = re.compile(r'(^\[.+?\])')
 FREE_RGX = re.compile(r'\bfree\b', re.I)
+SUB_REGEX = re.compile(r'^(https://)?((old|new|www).)?(reddit.com/)?r/(?P<sub>[A-Za-z]+)(/(?P<sorting>[A-Za-z]+))?$')
 PROMO_RGX = re.compile(r'(promo code )(.+?)\b', re.I)
 URLS = [
-    'https://www.reddit.com/r/GameDeals/',
-    'https://www.reddit.com/r/GameDeals/new/',
-    'https://www.reddit.com/r/GameDeals/hot/'
+    'https://old.reddit.com/r/GameDeals/',
+    'https://old.reddit.com/r/GameDeals/new/',
+    'https://old.reddit.com/r/GameDeals/hot/'
 ]
 
 args = ArgumentParser()
 args.add_argument('-f', '--free', action='store_true', help='Show free deals', required=False)
 args.add_argument('-p', '--promo', action='store_true', help='Show deals with promo codes', required=False)
 args.add_argument('-o', '--others', action='store_true', help='Show other deals', required=False)
-args.add_argument('-u', '--urls', help='Url list, default to urls.txt', type=str, required=False)
+args.add_argument('-u', '--urls', help='Additional urls, can be shortened to r/<subreddit>/<new|top|hot>', type=str, required=False, nargs='+')
 args.add_argument('-v', '--version', action='store_true', help='Prints the current version', required=False)
 args.add_argument('-d', '--debug', action='store_true', help='Runs the program in debug mode (this is meant for testing only)', required=False)
 # args.add_argument('-l', '--log', action='store_true', help='Save the output to a text file', required=False)
@@ -67,6 +68,8 @@ def sort_deals(deals: list[Deal]) -> list[Deal]:
     return sorted(deals, key=lambda x: -x.time)
 
 def main():
+    urls = []
+
     if args.version:
         print(VERSION)
         sys.exit(0)
@@ -76,10 +79,23 @@ def main():
     else:
         urls = URLS
 
+    if args.urls:
+        for url in args.urls:
+            url_match = SUB_REGEX.match(url)
+            subreddit = url_match.group('sub')
+            sorting = url_match.group('sorting')
+
+            u = f'https://old.reddit.com/r/{subreddit}'
+
+            if sorting:
+                u += f'/{sorting}'
+
+            urls.append(u)
+
     deals = []
 
     if not urls:
-        print_error('urls.txt is empty')
+        print_error('No URL specified')
         sys.exit(1)
 
     printlnc(f' --- GameDeals v{VERSION} by {AUTHOR} --- ', FG.White, BG.Magenta)
