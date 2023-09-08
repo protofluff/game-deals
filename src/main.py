@@ -42,10 +42,9 @@ def sub(source: str, replacements: dict[re.Pattern, str]):
 
 def style_row(deal: Deal):
     date = datetime.fromtimestamp(deal.time).strftime('%d/%m/%Y')
-    text = sub(deal.title, {
+    text = colored(f'({date}) ', FG.Yellow) + sub(deal.title, {
         TITLE_RGX: coloreds(
-            ('\\1', FG.Green, BG.Black),
-            (f' ({date})', FG.Yellow)
+            ('\\1', FG.Green, BG.Black)
         ),
         FREE_RGX: colored('FREE', BG.Red, FG.White),
         PROMO_RGX: coloreds(
